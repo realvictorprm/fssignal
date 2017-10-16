@@ -29,25 +29,24 @@ open MathUtils.Complex
 
 
 
-let radix2fftRealToComplex data =
+let radix2fftDoublePrecision data =
     let N = data |> Array.length
     let nAsDouble = double N
     let maxStage = log10(float N) / log10(2.) |> int
-    printfn "maxstage = %A" maxStage
+    // printfn "maxstage = %A" maxStage
     let twiddleFactorTable =
         let constant = 2. * Math.PI / (double N) 
         [| for i in 0 .. maxStage do 
             let x = -constant * (double i)
-            printfn "x = %A" x
+            // printfn "x = %A" x
             yield Complex(cos x, sin x)|]
-    let mutable complexData = doubleArrayToComplexArray (data |> Array.map(fun v -> v / nAsDouble))
-    do // Reverses data
+    // Create data-array filled with the input data (bit-reversed index-order)
+    let mutable complexData = 
         let bitReversalFunc = bitReversalOf maxStage
-        for i in 0 .. (powersOfTwo.[maxStage - 1] - 1) do
-            let bitReversal =  bitReversalFunc i
-            let cache = complexData.[i]
-            complexData.[i] <- complexData.[bitReversal] 
-            complexData.[bitReversal] <- cache
+        [| for i in 0 .. (N - 1) ->
+            let bitReversalOfi =  bitReversalFunc i in
+            data.[bitReversalOfi] / nAsDouble 
+            |> Complex.op_Implicit |]
     // Recursive computes the FFT of the data. The Stage value must be initial 1
     for stage in 1 .. maxStage do
         let numberOfPakets = powersOfTwo.[maxStage - stage]  // checked
@@ -61,9 +60,9 @@ let radix2fftRealToComplex data =
             for k in 0..(halfMaxN - 1) do
                 let a = complexData.[k + offset]
                 let b = complexData.[k + offsetPlusHalfMaxN] * twiddleFactorTable.[twiddleIndices.[k]]
-                printfn "b = %A" b
-                printfn "twiddleIndex %A" twiddleIndices.[k]
-                printfn "twiddle factor %A" twiddleFactorTable.[twiddleIndices.[k]]
+                // printfn "b = %A" b
+                // printfn "twiddleIndex %A" twiddleIndices.[k]
+                // printfn "twiddle factor %A" twiddleFactorTable.[twiddleIndices.[k]]
                 let ra = a + b
                 let rb = a - b
                 complexData.[k + offset] <- ra

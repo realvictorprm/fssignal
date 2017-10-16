@@ -7,6 +7,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "fssignalprocessing", "fssig
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ProcessingExample", "ProcessingExample\ProcessingExample.fsproj", "{AE75D163-820B-4878-93AC-6946C4BF08EF}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "fssignalprocessing-tests", "fssignalprocessing-tests\fssignalprocessing-tests.fsproj", "{A79FA8B7-D98F-4218-BB67-5FD07F300886}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{AE75D163-820B-4878-93AC-6946C4BF08EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE75D163-820B-4878-93AC-6946C4BF08EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE75D163-820B-4878-93AC-6946C4BF08EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A79FA8B7-D98F-4218-BB67-5FD07F300886}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A79FA8B7-D98F-4218-BB67-5FD07F300886}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A79FA8B7-D98F-4218-BB67-5FD07F300886}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A79FA8B7-D98F-4218-BB67-5FD07F300886}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
