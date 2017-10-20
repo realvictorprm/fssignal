@@ -81,6 +81,8 @@
       <HintPath>..\packages\Mono.Cecil.0.10.0-beta6\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Diagnostics.FileVersionInfo">
@@ -93,7 +95,10 @@
     <Reference Include="System.ValueTuple">
       <HintPath>..\packages\System.ValueTuple.4.3.1\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\fssignalprocessing\fssignalprocessing.fsproj">

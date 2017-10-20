@@ -155,32 +155,31 @@ open System.Numerics
 open System
 
 
-
-let radix2fftRealToComplex data =
+let radix2fftDoublePrecision data =
     let N = data |> Array.length
     let nAsDouble = double N
     let maxStage = log10(float N) / log10(2.) |> int
-    printfn "maxstage = %A" maxStage
+    // printfn "maxstage = %A" maxStage
     let twiddleFactorTable =
         let constant = 2. * Math.PI / (double N) 
-        [| for i in 0 .. maxStage do 
+        [| for i in 0 .. (powersOfTwo.[maxStage - 1]) do 
             let x = -constant * (double i)
-            printfn "x = %A" x
-            yield Complex(cos x, sin x)|]
-    let mutable complexData = doubleArrayToComplexArray (data |> Array.map(fun v -> v / nAsDouble))
-    do // Reverses data
+            // printfn "x = %A" x
+            yield Complex(cos x, -sin x)|]
+    // Create data-array filled with the input data (bit-reversed index-order)
+    let mutable complexData = 
         let bitReversalFunc = bitReversalOf maxStage
-        for i in 0 .. (powersOfTwo.[maxStage - 1] - 1) do
-            let bitReversal =  bitReversalFunc i
-            let cache = complexData.[i]
-            complexData.[i] <- complexData.[bitReversal] 
-            complexData.[bitReversal] <- cache
+        [| for i in 0 .. (N - 1) ->
+            let bitReversalOfi = bitReversalFunc i in
+            data.[bitReversalOfi] 
+            |> double /// nAsDouble 
+            |> Complex.op_Implicit |]
     // Recursive computes the FFT of the data. The Stage value must be initial 1
     for stage in 1 .. maxStage do
         let numberOfPakets = powersOfTwo.[maxStage - stage]  // checked
         let currMaxN = powersOfTwo.[stage]  // checked
         let halfMaxN = powersOfTwo.[stage - 1]  // checked
-        let twiddleIndices = Array.init halfMaxN (fun k -> k * numberOfPakets) // checked
+        let twiddleIndices = Array.Parallel.init halfMaxN (fun k -> k * powersOfTwo.[max(maxStage - stage) 0]) // checked
         for paketNumber in 0..(numberOfPakets - 1) do
             let offset = paketNumber * currMaxN
             let offsetPlusHalfMaxN = halfMaxN + offset
@@ -197,3 +196,16 @@ let radix2fftRealToComplex data =
                 complexData.[k + offsetPlusHalfMaxN] <- rb
 
     complexData
+
+let data = 
+    [|  1. 
+        2. 
+        3. 
+        4. 
+        -5. 
+        6. 
+        7. 
+        8.|]
+
+let res = radix2fftDoublePrecision data
+printfn "%A" res 

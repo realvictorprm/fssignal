@@ -2,6 +2,8 @@
 open System.Numerics
 open MathUtils
 open System.Diagnostics
+open SignalProcessing
+open System
 
 
     
@@ -22,6 +24,22 @@ let ``FFT Tests`` =
             stopwatch.Stop()
             printfn "Computing cross correlation took %A milliseconds. Result value: %A" stopwatch.ElapsedMilliseconds res
 
+        do
+            let chirp x = sin(x * x)
+            let data =
+                let size = pown 2 16
+                let constant = 2. * Math.PI * double size
+                Array.Parallel.init size (fun x -> chirp (double x / constant))
+            let triangleFun x = 
+                if x >= 0. && x < 0.5 then 2. * x 
+                elif x >= 0.5 && x <= 1. then (x - 0.5) * 2. 
+                else 0
+            stopwatch.Reset()
+            do ``STFT using Radix2-FFT`` data triangleFun 20
+            stopwatch.Stop()
+            printfn "Computing stft took %A milliseconds." stopwatch.ElapsedMilliseconds
+
+            
     } 
 
 

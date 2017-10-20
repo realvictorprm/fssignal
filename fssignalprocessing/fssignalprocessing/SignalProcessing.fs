@@ -36,15 +36,15 @@ let radix2fftDoublePrecision data =
     // printfn "maxstage = %A" maxStage
     let twiddleFactorTable =
         let constant = 2. * Math.PI / (double N) 
-        [| for i in 0 .. maxStage do 
+        [| for i in 0 .. (powersOfTwo.[maxStage - 1]) do 
             let x = -constant * (double i)
             // printfn "x = %A" x
-            yield Complex(cos x, sin x)|]
+            yield Complex(cos x, -sin x)|]
     // Create data-array filled with the input data (bit-reversed index-order)
     let mutable complexData = 
         let bitReversalFunc = bitReversalOf maxStage
         [| for i in 0 .. (N - 1) ->
-            let bitReversalOfi =  bitReversalFunc i in
+            let bitReversalOfi = bitReversalFunc i in
             data.[bitReversalOfi] / nAsDouble 
             |> Complex.op_Implicit |]
     // Recursive computes the FFT of the data. The Stage value must be initial 1
@@ -52,7 +52,7 @@ let radix2fftDoublePrecision data =
         let numberOfPakets = powersOfTwo.[maxStage - stage]  // checked
         let currMaxN = powersOfTwo.[stage]  // checked
         let halfMaxN = powersOfTwo.[stage - 1]  // checked
-        let twiddleIndices = Array.init halfMaxN (fun k -> k * numberOfPakets) // checked
+        let twiddleIndices = Array.Parallel.init halfMaxN (fun k -> k * powersOfTwo.[max(maxStage - stage) 0]) // checked
         for paketNumber in 0..(numberOfPakets - 1) do
             let offset = paketNumber * currMaxN
             let offsetPlusHalfMaxN = halfMaxN + offset
@@ -60,9 +60,9 @@ let radix2fftDoublePrecision data =
             for k in 0..(halfMaxN - 1) do
                 let a = complexData.[k + offset]
                 let b = complexData.[k + offsetPlusHalfMaxN] * twiddleFactorTable.[twiddleIndices.[k]]
-                // printfn "b = %A" b
-                // printfn "twiddleIndex %A" twiddleIndices.[k]
-                // printfn "twiddle factor %A" twiddleFactorTable.[twiddleIndices.[k]]
+                //printfn "b = %A" b
+                //printfn "twiddleIndex %A" twiddleIndices.[k]
+                //printfn "twiddle factor %A" twiddleFactorTable.[twiddleIndices.[k]]
                 let ra = a + b
                 let rb = a - b
                 complexData.[k + offset] <- ra
@@ -70,3 +70,12 @@ let radix2fftDoublePrecision data =
 
     complexData
 
+let ``STFT using Radix2-FFT`` data windowFunction steps =
+    let windowSize = (Array.length data) / steps
+    let window = Array.Parallel.init windowSize (fun i -> windowFunction (double i / double windowSize))
+    let actualSize = powersOfTwo.[Math.Floor(log10 (double windowSize) / log10 2.) |> int]
+    let calcLocalSTFT index =
+        let startIndex = windowSize * index
+        let weightedData = Array.Parallel.init actualSize (fun i -> if i < windowSize then window.[i] * data.[startIndex + i] else 0.)
+        radix2fftDoublePrecision weightedData
+    Array.Parallel.init steps calcLocalSTFT
